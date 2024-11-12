@@ -1,0 +1,38 @@
+service: aws-tutorial
+useDotenv: true
+
+provider:
+  name: aws
+  # Default stage. Optional. (default: dev)
+  stage: dev
+  # Default region. Optional. (default: us-east-1)
+  region: ap-south-1
+  timeout: 30
+  environment:
+    ROOT_PASSWORD: ${env:ROOT_PASSWORD}
+plugins:
+  - serverless-offline
+
+functions:
+  test:
+    handler: index.handler # required, handler set in AWS Lambda
+    events:
+      - httpApi:
+          method: POST
+          path: /test
+  test1:
+    handler: index.nameTera # required, handler set in AWS Lambda
+    events:
+      - httpApi:
+          method: Get
+          path: /nameTera
+    environment:
+      USER_NAME_SPECIFIC: ${env:USER_NAME_SPECIFIC}
+  test2:
+    handler: index.testHandler # required, handler set in AWS Lambda
+    events:
+      - httpApi:
+          method: Get
+          path: /testHandler/{id}/{phoneNumber}
+    environment:
+      USER_NAME_SPECIFIC: ${env:USER_NAME_SPECIFIC}

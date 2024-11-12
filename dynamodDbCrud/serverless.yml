@@ -1,0 +1,74 @@
+service: crud-with-dynamo
+useDotenv: true
+
+provider:
+  name: aws
+  stage: dev
+  region: ap-south-1
+  runtime: nodejs18.x
+  timeout: 30
+  environment:
+    TABLE_NAME: ${env:TABLE_NAME}
+    PRIMARY_KEY: ${env:PRIMARY_KEY}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamoDb:*
+      Resource:
+        - !Sub arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_NO}:table/${env:TABLE_NAME}
+plugins:
+  # - serverless-offline
+
+resources:
+  Resources:
+    TodoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: ${env:PRIMARY_KEY}
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ${env:PRIMARY_KEY}
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+functions:
+  createTodo:
+    handler: ./controller/todo.creatOrUpdateTodo
+    events:
+      - httpApi:
+          method: POST
+          path: /api/createTodo
+          cors:
+            origin: "*"
+  getTodoById:
+    handler: ./controller/todo.getTodoById
+    events:
+      - httpApi:
+          method: GET
+          path: /api/getTodoById
+          cors:
+            origin: "*"
+
+  getTodos:
+    handler: ./controller/todo.getTodos
+    events:
+      - httpApi:
+          method: GET
+          path: /api/getTodos
+          cors:
+            origin: "*"
+
+  deleteTodo:
+    handler: ./controller/todo.deleteTodo
+    events:
+      - httpApi:
+          method: DELETE
+          path: /api/deleteTodo
+          cors:
+            origin: "*"
